@@ -172,8 +172,7 @@ get_recommendations('iron man', cosine_sim2)
 
 #Created the function results() to return the recommendation in dictionary form
 def results(movie_name):
-    movie_name = movie_name
-    
+       
    
     if movie_name not in movie_ratings['title_x'].unique():
         return 'Movie not in Database'
@@ -181,4 +180,4 @@ def results(movie_name):
     else:
         recommendations = get_recommendations(movie_name, cosine_sim2)
         return recommendations.to_dict('records')
-results()
+results('Iron Man')

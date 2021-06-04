@@ -5,7 +5,7 @@ import movie_recommender
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/movie', methods=['GET'])
+@app.route('/movie?title=', methods=['GET'])
 def get_recommendations():
     res = movie_recommender.results(request.args.get('title'))
     return jsonify(res)
