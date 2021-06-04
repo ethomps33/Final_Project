@@ -3,10 +3,10 @@ import pandas as pd
 import numpy as np
 
 # Loading in Movies CSV
-movie_list = pd.read_csv("tmdb_5000_movies.csv")
+movie_list = pd.read_csv("Resources/tmdb_5000_movies.csv")
 movies_db = pd.DataFrame(movie_list)
 # Loading in Credits CSV
-ratings_list = pd.read_csv("tmdb_5000_credits.csv")
+ratings_list = pd.read_csv("Resources/tmdb_5000_credits.csv")
 ratings_db = pd.DataFrame(ratings_list)
 # Merging the Data sets
 movies_db = movies_db.rename(columns = {'id':'movie_id'})
@@ -85,7 +85,23 @@ def get_recommendations(title_x, cosine_sim=cosine_sim):
     movie_indices = [i[0] for i in sim_scores]
 
     # Return the top 10 most similar movies
-    return movie_ratings['title_x'].iloc[movie_indices]
+    #return movie_ratings['title_x'].iloc[movie_indices]
+
+
+    movie_id = movie_ratings['movie_id'].iloc[movie_indices]
+    movie_title = movie_ratings['title_x'].iloc[movie_indices]
+    movie_genres = movie_ratings['genres'].iloc[movie_indices]
+    movie_cast = movie_ratings['cast'].iloc[movie_indices]
+    #movie_score = movie_ratings['score'].iloc[movie_indices]
+
+    recommendation_data = pd.DataFrame(columns=['Movie_Id','Title','Cast','Genres'])
+
+    recommendation_data['Movie_Id'] = movie_id
+    recommendation_data['Title'] = movie_title
+    #recommendation_data['Rating'] = movie_score
+    recommendation_data['Cast'] = movie_cast
+    recommendation_data['Genres'] = movie_genres
+    return recommendation_data
 # Parse the stringified features into their corresponding python objects
 from ast import literal_eval
 
@@ -128,11 +144,14 @@ def clean_data(x):
             return str.lower(x.replace(" ", ""))
         else:
             return ''
-# Apply clean_data function to your features.
+## Apply clean_data function to your features.
 features = ['cast', 'keywords', 'director', 'genres']
+title_x = movie_ratings['title_x']
 
 for feature in features:
     movie_ratings[feature] = movie_ratings[feature].apply(clean_data)
+# Put the movie titles all in lowercase    
+movie_ratings['title_x'] = movie_ratings['title_x'].str.lower()
 def create_soup(x):
     return ' '.join(x['keywords']) + ' ' + ' '.join(x['cast']) + ' ' + x['director'] + ' ' + ' '.join(x['genres'])
 movie_ratings['soup'] = movie_ratings.apply(create_soup, axis=1)
@@ -149,4 +168,17 @@ cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
 movie_ratings = movie_ratings.reset_index()
 indices = pd.Series(movie_ratings.index, index=movie_ratings['title_x'])
 #Use get_recommendations to display results
-get_recommendations('Iron Man', cosine_sim2)
+get_recommendations('iron man', cosine_sim2)
+
+#Created the function results() to return the recommendation in dictionary form
+def results(movie_name):
+    movie_name = movie_name
+    
+   
+    if movie_name not in movie_ratings['title_x'].unique():
+        return 'Movie not in Database'
+    
+    else:
+        recommendations = get_recommendations(movie_name, cosine_sim2)
+        return recommendations.to_dict('records')
+results()

@@ -7,7 +7,7 @@ CORS(app)
 
 @app.route('/movie', methods=['GET'])
 def get_recommendations():
-    res = movie_recommender.results(request.args.get('title_x'))
+    res = movie_recommender.results(request.args.get('title'))
     return jsonify(res)
 
 if __name__=='__main__':
